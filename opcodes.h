@@ -4,8 +4,6 @@
 // List of opcode constants for DLX and macros
 // for extracting information from these opcodes.
 
-// TODO(zac): floating point instructions.
-
 // The DLX instructionset has 3 kinds of instructions:
 // r:
 //   000000 rrrrr rrrrr rrrrr _____ xxxxxx
