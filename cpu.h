@@ -49,6 +49,6 @@ word_t read_mlr(cpu c);
 word_t read_tsr(cpu c);
 
 // Returns the value of tmr
-word_t read_tmr(cpu c);
+word_t read_tcr(cpu c);
 
 #endif // _CPU_CPU_H

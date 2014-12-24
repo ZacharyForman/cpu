@@ -54,7 +54,7 @@ struct _cpu {
   word_t tsr;
 
   // Timer; decremented by one each cycle.
-  word_t tmr;
+  word_t tcr;
 
   // Internals used for simulation
 
@@ -82,24 +82,19 @@ void _execute_current_instruction(cpu c) {
 // Caller must free the returned cpu pointer and
 // the provided mem pointer.
 cpu new_cpu(byte_t *mem) {
-  int i;
-
   cpu c = (cpu) malloc(sizeof(struct _cpu));
 
-  c->pc = 0;
+  c->pc  = 0x00000000;
   memset(c->registers, 0, 32 * sizeof(word_t));
 
-  c->psw = 0;
-  c->psw |= 0x1;
-  for (i = 0; i < 7; i++)
-    c->psw |= 0x1 << (16+i);
-
-  c->xar = 0;
-  c->xbr = 0;
-  c->mbr = 0;
-  c->mlr = 0;
-  c->tsr = 0;
-  c->tmr = 0;
+  c->psw = 0x00000000;
+  c->xar = 0x00000000;
+  c->xbr = 0x00000000;
+  c->mbr = 0x00000000;
+  c->mlr = 0x00000000;
+  // Set timer to ready
+  c->tsr = 0x00000080;
+  c->tcr = 0x00000000;
 
   c->mem = mem;
 
@@ -162,6 +157,6 @@ word_t read_tsr(cpu c) {
 }
 
 // Returns the value of tmr
-word_t read_tmr(cpu c) {
-  return c->tmr;
+word_t read_tcr(cpu c) {
+  return c->tcr;
 }
