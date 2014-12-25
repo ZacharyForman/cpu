@@ -120,13 +120,13 @@ case 0: {
 
     // Special
     case MOVI2S: {
-      //TODO(au.zachary.forman) implement.
-      FATAL("Unimplemented");
+      //TODO(au.zachary.forman) Error handling for unknown specials.
+      c->s[dst] = c->r[src1];
       return;
     }
     case MOVS2I: {
-      //TODO(au.zachary.forman) implement.
-      FATAL("Unimplemented");
+      //TODO(au.zachary.forman) Error handling for unknown specials.
+      c->r[dst] = c->s[src1];
       return;
     }
 

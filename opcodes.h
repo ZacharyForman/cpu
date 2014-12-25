@@ -20,7 +20,7 @@
 #define R_TYPE(op) (((op) & 0x0000003F) >> 0)
 
 // Extracts destination register of an R operation
-#define R_DST(op)  (((op) & 0x0000F800) >> 12)
+#define R_DST(op)  (((op) & 0x0000F800) >> 11)
 
 // Extracts the first source register of an R operation.
 #define R_SRC1(op) (((op) & 0x03E00000) >> 21)
@@ -40,7 +40,7 @@
 
 
 // Extracts the immediate value of a J operation.
-#define J_IMM(op)  (((op) & 0x03FFFFFF) >> 0)
+#define L_IMM(op)  (((op) & 0x03FFFFFF) >> 0)
 
 
 // Some operations take unsigned immediates.

@@ -8,6 +8,47 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Special registers defining CPU behaviour.
+
+// Processor status word
+// 0  -> master exception enable
+// 2  -> user mode previous
+// 3  -> user mode enable
+// 4  -> floating points enabled
+// 8  -> illegal instruction trap
+// 9  -> illegal memory address trap
+// 10 -> memory protection trap
+// 12 -> floating point trap
+// 15 -> user initiated trap enable
+// 16 -> interrupt 0 enabled.
+// ...
+// 23 -> interrupt 7 enabled
+#define PSW 0x01
+
+// Value of PC at time of interrupt/exception
+#define XAR 0x02
+
+// Address of 15 word table of exception handlers
+#define XBR 0x03
+
+// Added to all addresses while in user-mode
+#define MBR 0x04
+
+// Number of bytes accessible in user mode, relative to mbr.
+#define MLR 0x05
+
+// Timer status word
+// 0  -> start timer
+// 6  -> interrupt enable
+// 7  -> ready
+// 16 -> interrupt 0
+// ...
+// 23 -> interrupt 7
+#define TSR 0x06
+
+// Timer; decremented by one each cycle.
+#define TCR 0x07
+
 struct _cpu {
   // Current program count.
   word_t pc;
@@ -18,46 +59,9 @@ struct _cpu {
   // 32 general purpose registers. r0 is always 0.
   word_t r[32];
 
-  // Processor status word
-  // 0  -> master exception enable
-  // 2  -> user mode previous
-  // 3  -> user mode enable
-  // 4  -> floating points enabled
-  // 8  -> illegal instruction trap
-  // 9  -> illegal memory address trap
-  // 10 -> memory protection trap
-  // 12 -> floating point trap
-  // 15 -> user initiated trap enable
-  // 16 -> interrupt 0 enabled.
-  // ...
-  // 23 -> interrupt 7 enabled
-  word_t psw;
+  // 7 special purpose registers, detailed above.
+  word_t s[8];
 
-  // Value of PC at time of interrupt/exception
-  word_t xar;
-
-  // Address of 15 word table of exception handlers
-  word_t xbr;
-
-  // Added to all addresses while in user-mode
-  word_t mbr;
-
-  // Number of bytes accessible in user mode, relative to mbr.
-  word_t mlr;
-
-  // Timer status word
-  // 0  -> start timer
-  // 6  -> interrupt enable
-  // 7  -> ready
-  // 16 -> interrupt 0
-  // ...
-  // 23 -> interrupt 7
-  word_t tsr;
-
-  // Timer; decremented by one each cycle.
-  word_t tcr;
-
-  // Internals used for simulation
 
   // Actual location of byte '0'.
   byte_t *mem;
@@ -104,14 +108,14 @@ cpu new_cpu(byte_t *mem) {
   c->pc  = 0x00000000;
   memset(c->r, 0, 32 * sizeof(word_t));
 
-  c->psw = 0x00000000;
-  c->xar = 0x00000000;
-  c->xbr = 0x00000000;
-  c->mbr = 0x00000000;
-  c->mlr = 0x00000000;
+  c->s[PSW] = 0x00000000;
+  c->s[XAR] = 0x00000000;
+  c->s[XBR] = 0x00000000;
+  c->s[MBR] = 0x00000000;
+  c->s[MLR] = 0x00000000;
   // Set timer to ready
-  c->tsr = 0x00000080;
-  c->tcr = 0x00000000;
+  c->s[TSR] = 0x00000080;
+  c->s[TCR] = 0x00000000;
 
   c->mem = mem;
 
@@ -144,7 +148,7 @@ word_t read_pc(cpu c) {
 
 // Returns the value of ir.
 word_t read_psw(cpu c) {
-  return c->psw;
+  return c->s[PSW];
 }
 
 // Returns the value of psw.
@@ -154,30 +158,30 @@ word_t read_ir(cpu c) {
 
 // Returns the value of xar
 word_t read_xar(cpu c) {
-  return c->xar;
+  return c->s[XAR];
 }
 
 // Returns the value of xbr
 word_t read_xbr(cpu c) {
-  return c->xbr;
+  return c->s[XBR];
 }
 
 // Returns the value of mbr
 word_t read_mbr(cpu c) {
-  return c->mbr;
+  return c->s[MBR];
 }
 
 // Returns the value of mlr
 word_t read_mlr(cpu c) {
-  return c->mlr;
+  return c->s[MLR];
 }
 
 // Returns the value of tsr
 word_t read_tsr(cpu c) {
-  return c->tsr;
+  return c->s[TSR];
 }
 
 // Returns the value of tmr
 word_t read_tcr(cpu c) {
-  return c->tcr;
+  return c->s[TCR];
 }
