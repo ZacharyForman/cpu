@@ -60,7 +60,7 @@ case 0: {
 
     // Arithmetic:
     case ADD: {
-      // TODO(au.zachary.forman) trap on overflow
+      //TODO(au.zachary.forman) trap on overflow
       c->r[dst] = (sword_t)(c->r[src1]) + c->r[src2];
       return;
     }
@@ -69,7 +69,7 @@ case 0: {
       return;
     }
     case SUB: {
-      // TODO(au.zachary.forman) trap on overflow
+      //TODO(au.zachary.forman) trap on overflow
       c->r[dst] = (sword_t)(c->r[src1]) - c->r[src2];
       return;
     }
@@ -120,18 +120,18 @@ case 0: {
 
     // Special
     case MOVI2S: {
-      // TODO(au.zachary.forman) implement.
+      //TODO(au.zachary.forman) implement.
       FATAL("Unimplemented");
       return;
     }
     case MOVS2I: {
-      // TODO(au.zachary.forman) implement.
+      //TODO(au.zachary.forman) implement.
       FATAL("Unimplemented");
       return;
     }
 
     default: {
-      // TODO(au.zachary.forman) illegal instruction interrupt
+      //TODO(au.zachary.forman) illegal instruction interrupt
       FATAL("No such opcode %X", op);
       return;
     }

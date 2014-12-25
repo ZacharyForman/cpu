@@ -69,8 +69,11 @@ struct _cpu {
 
 // CPU internal function to fetch next instruction
 void _fetch(cpu c) {
-  if (c->pc % sizeof(word_t))
-    FATAL("TODO: Trigger illegal access interrupt");
+
+  if (c->pc % sizeof(word_t)) {
+    // TODO(au.zachary.forman) Trigger interrupt instead
+    FATAL("Unaligned access");
+  }
 
   c->ir = *((word_t*)(c->mem) + c->pc);
   c->pc += 4;
@@ -127,8 +130,10 @@ void cycle(cpu c) {
 
 // Returns the value of register reg.
 word_t read_register(cpu c, int reg) {
-  if (reg < 0 || reg > 31)
+  if (reg < 0 || reg > 31) {
+    // TODO(au.zachary.forman) Reconsider.
     FATAL("Register %d out of bounds", reg);
+  }
   return c->r[reg];
 }
 
