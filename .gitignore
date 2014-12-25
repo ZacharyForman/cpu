@@ -74,3 +74,10 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# DLX files
+*.dls
+*.dlx
+*.dlo
+*.dla
+*.jar
