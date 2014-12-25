@@ -55,7 +55,16 @@
   } while(0)
 #else
 #define DEBUG(msg, ...)
-#endif // DEBUG_LEVEL > 1
+#endif // DEBUG_LEVEL > 2
 
+// Turn on verbose messages if DEBUG_LEVEL > 3
+#if DEBUG_LEVEL > 3
+#define VERBOSE(msg, ...) \
+  do { \
+    _LOG(__FILE__, msg, "V", ## __VA_ARGS__); \
+  } while(0)
+#else
+#define VERBOSE(msg, ...)
+#endif // DEBUG_LEVEL > 1
 
 #endif // _CPU__LOGH

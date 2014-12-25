@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 
+// If expr != expect, prints a message to stderr.
+// Tag is an int used to help differentiate tests.
 #define REQUIRE(tag, expr, expect) \
   do { \
     if (expr != expect) { \

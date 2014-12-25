@@ -125,6 +125,8 @@ cpu new_cpu(byte_t *mem) {
 }
 
 // Perform a cycle on the CPU
+// This involves fetching the instruction at PC
+// and then executing it.
 void cycle(cpu c) {
   _fetch(c);
   _execute_current_instruction(c);
@@ -147,13 +149,13 @@ word_t read_pc(cpu c) {
 }
 
 // Returns the value of ir.
-word_t read_psw(cpu c) {
-  return c->s[PSW];
+word_t read_ir(cpu c) {
+  return c->ir;
 }
 
 // Returns the value of psw.
-word_t read_ir(cpu c) {
-  return c->ir;
+word_t read_psw(cpu c) {
+  return c->s[PSW];
 }
 
 // Returns the value of xar

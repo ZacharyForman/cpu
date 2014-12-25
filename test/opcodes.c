@@ -12,16 +12,16 @@ void test_r_opcodes() {
     unsigned r_src1;
     unsigned r_src2;
   } t[] = {
-    {0x00000000, NOP   ,  0,  0,  0},
-    {0x00430820, ADD   ,  1,  2,  3},
-    {0x0361F823, SUBU  , 31, 27,  1},
-    {0x00000020, ADD   ,  0,  0,  0},
-    {0x00000001, HALT  ,  0,  0,  0},
-    {0x0041202D, SGE   ,  4,  2,  1},
-    {0x00210804, SLA   ,  1,  1,  1},
-    {0x03FFF82D, SGE   , 31, 31, 31},
-    {0x00000020, ADD   ,  0,  0,  0},
-    {0x00000004, SLL   ,  0,  0,  0},
+    {0x00000000,  NOP,  0,  0,  0},
+    {0x00430820,  ADD,  1,  2,  3},
+    {0x0361F823, SUBU, 31, 27,  1},
+    {0x00000020,  ADD,  0,  0,  0},
+    {0x00000001, HALT,  0,  0,  0},
+    {0x0041202D,  SGE,  4,  2,  1},
+    {0x00210804,  SLA,  1,  1,  1},
+    {0x03FFF82D,  SGE, 31, 31, 31},
+    {0x00000020,  ADD,  0,  0,  0},
+    {0x00000004,  SLL,  0,  0,  0},
   };
 
   for (i = 0; i < sizeof(t)/sizeof(t[0]); i++) {
@@ -83,7 +83,6 @@ void test_l_opcodes() {
     REQUIRE(4*i, TYPE(t[i].op), t[i].type);
     REQUIRE(4*i+1, L_SGN(L_IMM(t[i].op)), t[i].l_imm);
   }
-
 }
 
 int main() {

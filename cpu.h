@@ -20,12 +20,20 @@ typedef struct _cpu *cpu;
 
 // Construct a new CPU with provided base
 // memory pointer and a standard initialization.
+// Caller must free the returned cpu pointer and
+// the provided mem pointer.
 cpu new_cpu(byte_t *mem);
 
 // Perform a cycle on the CPU
 void cycle(cpu c);
 
 // Utility functions
+
+// Returns the value of pc.
+word_t read_pc(cpu c);
+
+// Returns the value of ir.
+word_t read_ir(cpu c);
 
 // Returns the value of register reg.
 word_t read_register(cpu c, int reg);
@@ -48,7 +56,7 @@ word_t read_mlr(cpu c);
 // Returns the value of tsr
 word_t read_tsr(cpu c);
 
-// Returns the value of tmr
+// Returns the value of tcr
 word_t read_tcr(cpu c);
 
 #endif // _CPU_CPU_H
