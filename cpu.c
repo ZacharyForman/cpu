@@ -3,6 +3,7 @@
 
 #include "cpu.h"
 #include "log.h"
+#include "opcodes.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +16,7 @@ struct _cpu {
   word_t ir;
 
   // 32 general purpose registers. r0 is always 0.
-  word_t registers[32];
+  word_t r[32];
 
   // Processor status word
   // 0  -> master exception enable
@@ -61,6 +62,9 @@ struct _cpu {
   // Actual location of byte '0'.
   byte_t *mem;
 
+  // Has the processor halted?
+  int halted;
+
 };
 
 // CPU internal function to fetch next instruction
@@ -74,7 +78,17 @@ void _fetch(cpu c) {
 
 // CPU internal function to execute the instruction in IR.
 void _execute_current_instruction(cpu c) {
-  FATAL("TODO: Implement instruction execution");
+  word_t op = TYPE(c->ir);
+  switch (TYPE(op)) {
+// Contains the R type operations
+#include "r_ops.c"
+
+// Contains the I type operations
+#include "i_ops.c"
+
+// Contains the L type operations
+#include "l_ops.c"
+  }
 }
 
 // Construct a new CPU with provided base
@@ -85,7 +99,7 @@ cpu new_cpu(byte_t *mem) {
   cpu c = (cpu) malloc(sizeof(struct _cpu));
 
   c->pc  = 0x00000000;
-  memset(c->registers, 0, 32 * sizeof(word_t));
+  memset(c->r, 0, 32 * sizeof(word_t));
 
   c->psw = 0x00000000;
   c->xar = 0x00000000;
@@ -97,6 +111,8 @@ cpu new_cpu(byte_t *mem) {
   c->tcr = 0x00000000;
 
   c->mem = mem;
+
+  c->halted = 0;
 
   return c;
 }
@@ -113,7 +129,7 @@ void cycle(cpu c) {
 word_t read_register(cpu c, int reg) {
   if (reg < 0 || reg > 31)
     FATAL("Register %d out of bounds", reg);
-  return c->registers[reg];
+  return c->r[reg];
 }
 
 // Returns the value of pc.
