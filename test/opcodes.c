@@ -76,8 +76,36 @@ void test_l_opcodes() {
   struct {
     unsigned op;
     unsigned type;
+    unsigned l_imm;
+  } t[] = {
+    {0x40000000,  RFE, 0},
+    {0x44000002, TRAP, 2},
+    {0x44000001, TRAP, 1},
+    {0x47FFFFFF, TRAP, 67108863}
+  };
+
+  for (i = 0; i < sizeof(t)/sizeof(t[0]); i++) {
+    REQUIRE(4*i, TYPE(t[i].op), t[i].type);
+    REQUIRE(4*i+1, L_IMM(t[i].op), t[i].l_imm);
+  }
+}
+
+// Tests for L type signed instructions.
+void test_l_s_opcodes() {
+  int i;
+  struct {
+    unsigned op;
+    unsigned type;
     signed l_imm;
-  } t[0];
+  } t[] = {
+    {0x0800000C,   J, 12},
+    {0x0BFFFFF8,   J, -8},
+    {0x0BFFFFFF,   J, -1},
+    {0x09FFFFFF,   J, 33554431},
+    {0x0C00000E, JAL, 14},
+    {0x0C0000FC, JAL, 252},
+    {0x0C000084, JAL, 132}
+  };
 
   for (i = 0; i < sizeof(t)/sizeof(t[0]); i++) {
     REQUIRE(4*i, TYPE(t[i].op), t[i].type);
@@ -85,11 +113,12 @@ void test_l_opcodes() {
   }
 }
 
+// Driver
 int main() {
   test_r_opcodes();
   test_i_opcodes();
   test_i_s_opcodes();
   test_l_opcodes();
-
+  test_l_s_opcodes();
   return 0;
 }

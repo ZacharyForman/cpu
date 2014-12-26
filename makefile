@@ -8,7 +8,7 @@ cpu.o: cpu.h cpu.c log.h opcodes.h
 
 test: test_opcodes
 
-test_opcodes: test/opcodes.c opcodes.h test.h
+test_opcodes: test/opcodes.c test/test.h opcodes.h
 	$(CC) -o bin/test_opcodes test/opcodes.c
 	bin/test_opcodes
 	rm -f bin/test_opcodes
