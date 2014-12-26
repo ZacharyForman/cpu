@@ -14,6 +14,10 @@ case 0: {
       c->halted = 1;
       return;
     }
+    case WAIT: {
+      // TODO(au.zachary.forman) Implement wait
+      FATAL("Instruction not implemented");
+    }
 
     //Shifts
     case SLL: {

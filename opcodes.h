@@ -64,6 +64,7 @@
 // Control
 #define NOP    0x00
 #define HALT   0x01
+#define WAIT   0x02
 
 // Shifts
 #define SLA    0x04
