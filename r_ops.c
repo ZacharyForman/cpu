@@ -32,7 +32,7 @@ case 0: {
     }
     case SRA: {
       // Note: DLX does only use the first 5 bits of src2.
-      c->r[dst] = (sword_t)(c->r[src1]) >> (c->r[src2] & 0x1F);
+      c->r[dst] = ((sword_t)c->r[src1]) >> (c->r[src2] & 0x1F);
       return;
     }
 
@@ -64,8 +64,8 @@ case 0: {
 
     // Arithmetic:
     case ADD: {
-      //TODO(au.zachary.forman) trap on overflow
-      c->r[dst] = (sword_t)(c->r[src1]) + c->r[src2];
+      // TODO(au.zachary.forman) trap on overflow
+      c->r[dst] = ((sword_t)c->r[src1]) + c->r[src2];
       return;
     }
     case ADDU: {
@@ -73,8 +73,8 @@ case 0: {
       return;
     }
     case SUB: {
-      //TODO(au.zachary.forman) trap on overflow
-      c->r[dst] = (sword_t)(c->r[src1]) - c->r[src2];
+      // TODO(au.zachary.forman) trap on overflow
+      c->r[dst] = ((sword_t)c->r[src1]) - c->r[src2];
       return;
     }
     case SUBU: {
@@ -82,7 +82,7 @@ case 0: {
       return;
     }
 
-    //Logical
+    // Logical
     case AND: {
       c->r[dst] = c->r[src1] & c->r[src2];
       return;
@@ -98,45 +98,39 @@ case 0: {
 
     // Logical
     case SEQ: {
-      c->r[dst] = (sword_t)(c->r[src1]) == c->r[src2];
+      c->r[dst] = ((sword_t)c->r[src1]) == c->r[src2];
       return;
     }
     case SNE: {
-      c->r[dst] = (sword_t)(c->r[src1]) != c->r[src2];
+      c->r[dst] = ((sword_t)c->r[src1]) != c->r[src2];
       return;
     }
     case SLT: {
-      c->r[dst] = (sword_t)(c->r[src1]) < c->r[src2];
+      c->r[dst] = ((sword_t)c->r[src1]) < c->r[src2];
       return;
     }
     case SGT: {
-      c->r[dst] = (sword_t)(c->r[src1]) > c->r[src2];
+      c->r[dst] = ((sword_t)c->r[src1]) > c->r[src2];
       return;
     }
     case SLE: {
-      c->r[dst] = (sword_t)(c->r[src1]) <= c->r[src2];
+      c->r[dst] = ((sword_t)c->r[src1]) <= c->r[src2];
       return;
     }
     case SGE: {
-      c->r[dst] = (sword_t)(c->r[src1]) <= c->r[src2];
+      c->r[dst] = ((sword_t)c->r[src1]) <= c->r[src2];
       return;
     }
 
     // Special
     case MOVI2S: {
-      //TODO(au.zachary.forman) Error handling for unknown specials.
+      // TODO(au.zachary.forman) Error handling for unknown specials.
       c->s[dst] = c->r[src1];
       return;
     }
     case MOVS2I: {
-      //TODO(au.zachary.forman) Error handling for unknown specials.
+      // TODO(au.zachary.forman) Error handling for unknown specials.
       c->r[dst] = c->s[src1];
-      return;
-    }
-
-    default: {
-      //TODO(au.zachary.forman) illegal instruction interrupt
-      FATAL("No such opcode %X", op);
       return;
     }
   }

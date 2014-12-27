@@ -131,6 +131,7 @@
 
 // Logical
 #define SEQI   0x18
+#define SNEI  0x19
 #define SLTI   0x1A
 #define SGTI   0x1B
 #define SLEI   0x1C
@@ -146,7 +147,7 @@
 #define SH     0x29
 #define SW     0x2B
 
-//Logical
+// Logical
 #define SEQUI  0x30
 #define SNEUI  0x31
 #define SLTUI  0x32
@@ -156,7 +157,7 @@
 
 // l type instructions
 
-//Control
+// Control
 #define J      0x02
 #define JAL    0x03
 #define RFE    0x10
