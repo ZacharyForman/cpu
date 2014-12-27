@@ -37,7 +37,7 @@ void free_memory(memory mem)
 // Return a pointer to the page that address belongs to.
 word_t *_address(memory mem, word_t address)
 {
-  word_t page = address & 0xFFC00000;
+  word_t page = (address & 0xFFC00000) >> 22;
   word_t *base = mem->pt[page];
   if (base == NULL) {
     mem->pt[page] = (word_t*)malloc(1 << 22);
