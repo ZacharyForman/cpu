@@ -131,7 +131,7 @@
 
 // Logical
 #define SEQI   0x18
-#define SNEI  0x19
+#define SNEI   0x19
 #define SLTI   0x1A
 #define SGTI   0x1B
 #define SLEI   0x1C

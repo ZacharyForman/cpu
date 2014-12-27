@@ -49,6 +49,7 @@
 // Timer; decremented by one each cycle.
 #define TCR 0x07
 
+// Internal representation of the CPU.
 struct _cpu {
   // Current program count.
   word_t pc;

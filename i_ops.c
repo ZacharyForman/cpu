@@ -120,18 +120,21 @@ case LHU: {
   return;
 }
 case SB: {
+  // TODO(au.zachary.forman) Implement memory protection
   *(membyte(c->mem, c->r[I_DST(op)] + I_SGN(I_IMM(op))))
     = (byte_t)(c->r[I_SRC(op)] & 0x000000FF);
   return;
 }
 case SH: {
+  // TODO(au.zachary.forman) Implement memory protection
   *(memhalfword(c->mem, c->r[I_DST(op)] + I_SGN(I_IMM(op))))
     = (halfword_t)(c->r[I_SRC(op)] & 0x0000FFFF);
   return;
 }
 case SW: {
+  // TODO(au.zachary.forman) Implement memory protection
   *(memword(c->mem, c->r[I_DST(op)] + I_SGN(I_IMM(op))))
-    = (byte_t)(c->r[I_SRC(op)]);
+    = (word_t)(c->r[I_SRC(op)]);
   return;
 }
 
