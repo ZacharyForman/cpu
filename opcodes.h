@@ -55,7 +55,7 @@
 // Sign extend a 16 bit immediate
 #define I_SGN(k) ( ((k) & 0x00008000) ? (0xFFFF0000 | (k)) : (k) )
 
-//Sign extend a 26 bit immediate.
+// Sign extend a 26 bit immediate.
 #define L_SGN(k) ( ((k) & 0x02000000) ? (0xFC000000 | (k)) : (k) )
 
 

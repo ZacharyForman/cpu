@@ -10,7 +10,7 @@ typedef struct _memory *memory;
 // Returns a new memory system.
 memory new_memory();
 
-//Frees the provided memory system.
+// Frees the provided memory system.
 void free_memory(memory mem);
 
 // Returns a pointer to the byte at address.

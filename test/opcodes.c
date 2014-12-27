@@ -3,7 +3,8 @@
 #include "test.h"
 
 // Tests for R type instructions.
-void test_r_opcodes() {
+void test_r_opcodes()
+{
   int i;
   struct {
     unsigned op;
@@ -33,7 +34,8 @@ void test_r_opcodes() {
 }
 
 // Tests for I type instructions.
-void test_i_opcodes() {
+void test_i_opcodes()
+{
   int i;
   struct {
     unsigned op;
@@ -52,7 +54,8 @@ void test_i_opcodes() {
 }
 
 // Tests for signed I type instructions.
-void test_i_s_opcodes() {
+void test_i_s_opcodes()
+{
   int i;
   struct {
     unsigned op;
@@ -71,7 +74,8 @@ void test_i_s_opcodes() {
 }
 
 // Tests for L type instructions.
-void test_l_opcodes() {
+void test_l_opcodes()
+{
   int i;
   struct {
     unsigned op;
@@ -91,7 +95,8 @@ void test_l_opcodes() {
 }
 
 // Tests for L type signed instructions.
-void test_l_s_opcodes() {
+void test_l_s_opcodes()
+{
   int i;
   struct {
     unsigned op;
@@ -114,7 +119,8 @@ void test_l_s_opcodes() {
 }
 
 // Driver
-int main() {
+int main()
+{
   test_r_opcodes();
   test_i_opcodes();
   test_i_s_opcodes();

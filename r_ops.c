@@ -19,7 +19,7 @@ case 0: {
       FATAL("Instruction not implemented");
     }
 
-    //Shifts
+    // Shifts
     case SLL: {
       // Note: DLX does only use the first 5 bits of src2.
       c->r[dst] = c->r[src1] << (c->r[src2] & 0x1F);
