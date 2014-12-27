@@ -34,34 +34,34 @@ void free_memory(memory mem)
   free(mem->pt);
 }
 
-// Return a pointer to the page that address belongs to.
+// Return a pointer to the physical address represented by address
 word_t *_address(memory mem, word_t address)
 {
   word_t page = (address & 0xFFC00000) >> 22;
   word_t *base = mem->pt[page];
   if (base == NULL) {
-    mem->pt[page] = (word_t*)malloc(1 << 22);
+    mem->pt[page] = (word_t*) malloc(1 << 22);
     base = mem->pt[page];
   }
-  return base;
+  return base + (address & 0x003FFFF);
 }
 
 // Returns a pointer to the byte at address.
 byte_t *membyte(memory mem, word_t address)
 {
-  return ((byte_t*)_address(mem, address)) + (address & 0x003FFFF);
+  return ((byte_t*) _address(mem, address));
 }
 
 // Returns a pointer to the halfword at address.
 halfword_t *memhalfword(memory mem, word_t address)
 {
-  return ((halfword_t*)_address(mem, address)) + (address & 0x003FFFF);
+  return ((halfword_t*) _address(mem, address));
 }
 
 // Returns a pointer to the word at address.
 word_t *memword(memory mem, word_t address)
 {
-  return ((word_t*)_address(mem, address)) + (address & 0x003FFFF);
+  return ((word_t*) _address(mem, address));
 }
 
 // Prints the range of memory from 
@@ -76,11 +76,11 @@ void print_words(memory mem, word_t start, unsigned range)
   }
 }
 
-// Loads sz words from arr into mem, starting at start.
-void load_memory(memory mem, word_t start, word_t *arr, unsigned sz)
+// Loads count words from arr into mem, starting at start.
+void load_memory(memory mem, word_t start, word_t *arr, unsigned count)
 {
   int i;
-  for (i = 0; i < sz; i++) {
+  for (i = 0; i < count; i++) {
     *memword(mem, start + i * sizeof(word_t)) = arr[i];
   }
 }
