@@ -52,4 +52,7 @@ word_t read_tsr(cpu c);
 // Returns the value of tcr
 word_t read_tcr(cpu c);
 
+// Prints an array of details about the current state of c.
+void print_cpu_details(cpu c);
+
 #endif // _CPU_CPU_H

@@ -63,3 +63,24 @@ word_t *memword(memory mem, word_t address)
 {
   return ((word_t*)_address(mem, address)) + (address & 0x003FFFF);
 }
+
+// Prints the range of memory from 
+void print_words(memory mem, word_t start, unsigned range)
+{
+  word_t i;
+  fprintf(stdout, "Address:\tValue:\n");
+  for (i = 0; i < range ; i++) {
+    fprintf(stdout, "%.8X:\t%.8X\n", 
+      start + i*sizeof(word_t), 
+      *memword(mem, start + i*sizeof(word_t)));
+  }
+}
+
+// Loads sz words from arr into mem, starting at start.
+void load_memory(memory mem, word_t start, word_t *arr, unsigned sz)
+{
+  int i;
+  for (i = 0; i < sz; i++) {
+    *memword(mem, start + i * sizeof(word_t)) = arr[i];
+  }
+}

@@ -12,28 +12,31 @@ int main(int argc, char **argv)
   cpu c = new_cpu(mem);
 
   // Write program
-  *memword(mem,  0) = 0x20010005;
-  *memword(mem,  4) = 0x20220003;
-  *memword(mem,  8) = 0x00411822;
-  *memword(mem, 12) = 0x8C040008;
+  word_t instructions[] = {
+    0x20010005,
+    0x20220003,
+    0x00411822,
+    0x8C040008,
+    0x00000001,
+    0xFFFFFFFF
+  };
+
+  // Load it into the memory
+  load_memory(mem, 0, instructions, sizeof(instructions)/sizeof(word_t));
 
   // Inspect memory
-  printf("Memory location %d = %X\n",  0, *memword(mem,  0));
-  printf("Memory location %d = %X\n",  4, *memword(mem,  4));
-  printf("Memory location %d = %X\n",  8, *memword(mem,  8));
-  printf("Memory location %d = %X\n", 12, *memword(mem, 12));
+  print_words(mem, 0, 3);
   
   // Execute it
   cycle(c);
   cycle(c);
   cycle(c);
   cycle(c);
+  cycle(c);
+  cycle(c);
 
   // Inspect results
-  printf("r1 = %d\n", read_register(c, 1));
-  printf("r2 = %d\n", read_register(c, 2));
-  printf("r3 = %d\n", read_register(c, 3));
-  printf("r4 = %X\n", read_register(c, 4));
+  print_cpu_details(c);
 
   // Free objects
   free_cpu(c);

@@ -11,7 +11,7 @@
 // Generic logging function. Prefer to use a specific variant.
 #define _LOG(tag, msg, level, ...) \
   do { \
-    fprintf(stderr, "%s/%s" msg "\n", level, tag, ## __VA_ARGS__); \
+    fprintf(stderr, "%s/%s] " msg "\n", level, tag, ## __VA_ARGS__); \
   } while(0)
 
 // Always have fatal messages on.

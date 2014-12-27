@@ -139,6 +139,10 @@ void free_cpu(cpu c)
 // and then executing it.
 void cycle(cpu c)
 {
+  if (c->halted) {
+    return;
+  }
+  
   _fetch(c);
   _execute_current_instruction(c);
   c->r[0] = 0;
@@ -208,4 +212,24 @@ word_t read_tsr(cpu c)
 word_t read_tcr(cpu c)
 {
   return c->s[TCR];
+}
+
+// Prints an array of details about the current state of c.
+void print_cpu_details(cpu c)
+{
+  int i;
+  
+  fprintf(stdout, 
+    "\nCPU:\n PC: %.8X\t IR: %.8X\nPSW: %.8X\tXAR: %.8X\n"
+    "XBR: %.8X\tMBR: %.8X\nMLR: %.8X\tTSR: %.8X\nTCR: %.8X\n\nRegisters:\n",
+    c->pc, c->ir, c->s[PSW], c->s[XAR], c->s[XBR], c->s[MBR],
+    c->s[MLR], c->s[TSR], c->s[TCR]);
+
+  for (i = 0; i < 16; i++) {
+    fprintf(stdout, "r%.2d: %.8X\tr%.2d: %.8X\n", 
+      2*i, c->r[2*i], 2*i+1, c->r[2*i+1]);
+  }
+
+  fprintf(stdout, "Current state: %s\n",
+    c->halted ? "Halted" : "Executing");
 }
