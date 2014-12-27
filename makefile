@@ -1,7 +1,11 @@
 CC=gcc
 CFLAGS=-c -Wall
 
-all: bin/cpu.o bin/memory.o
+all: bin/driver.o bin/cpu.o bin/memory.o
+	CC -o bin/driver bin/driver.o bin/cpu.o bin/memory.o
+
+bin/driver.o: driver.c
+	CC -o bin/driver.o $(CFLAGS) driver.c
 
 bin/cpu.o: cpu.h cpu.c log.h opcodes.h
 	CC -o bin/cpu.o $(CFLAGS) cpu.c

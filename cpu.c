@@ -65,7 +65,7 @@ struct _cpu {
 
 
   // Memory structure
-  memory *mem;
+  memory mem;
 
   // Has the processor halted?
   int halted;
@@ -73,8 +73,8 @@ struct _cpu {
 };
 
 // CPU internal function to fetch next instruction
-void _fetch(cpu c) {
-
+void _fetch(cpu c)
+{
   if (c->pc % sizeof(word_t)) {
     // TODO(au.zachary.forman) Trigger interrupt instead
     FATAL("Unaligned access");
@@ -85,7 +85,8 @@ void _fetch(cpu c) {
 }
 
 // CPU internal function to execute the instruction in IR.
-void _execute_current_instruction(cpu c) {
+void _execute_current_instruction(cpu c)
+{
   word_t op = TYPE(c->ir);
   switch (TYPE(op)) {
 // Contains the R type operations
@@ -103,9 +104,8 @@ void _execute_current_instruction(cpu c) {
 
 // Construct a new CPU with provided memory 
 // pointer and a standard initialization.
-// Caller must free the returned cpu pointer and
-// the provided mem pointer.
-cpu new_cpu(memory *mem) {
+cpu new_cpu(memory mem)
+{
   cpu c = (cpu) malloc(sizeof(struct _cpu));
 
   c->pc  = 0x00000000;
@@ -127,18 +127,28 @@ cpu new_cpu(memory *mem) {
   return c;
 }
 
+// Frees the cpu provided.
+void free_cpu(cpu c)
+{
+  free(c);
+}
+
+
 // Perform a cycle on the CPU
 // This involves fetching the instruction at PC
 // and then executing it.
-void cycle(cpu c) {
+void cycle(cpu c)
+{
   _fetch(c);
   _execute_current_instruction(c);
+  c->r[0] = 0;
 }
 
 // Utility functions
 
 // Returns the value of register reg.
-word_t read_register(cpu c, int reg) {
+word_t read_register(cpu c, int reg)
+{
   if (reg < 0 || reg > 31) {
     // TODO(au.zachary.forman) Reconsider.
     FATAL("Register %d out of bounds", reg);
@@ -147,46 +157,55 @@ word_t read_register(cpu c, int reg) {
 }
 
 // Returns the value of pc.
-word_t read_pc(cpu c) {
+word_t read_pc(cpu c)
+{
   return c->pc;
 }
 
 // Returns the value of ir.
-word_t read_ir(cpu c) {
+word_t read_ir(cpu c)
+{
   return c->ir;
 }
 
 // Returns the value of psw.
-word_t read_psw(cpu c) {
+word_t read_psw(cpu c)
+{
   return c->s[PSW];
 }
 
 // Returns the value of xar
-word_t read_xar(cpu c) {
+word_t read_xar(cpu c)
+{
   return c->s[XAR];
 }
 
 // Returns the value of xbr
-word_t read_xbr(cpu c) {
+word_t read_xbr(cpu c)
+{
   return c->s[XBR];
 }
 
 // Returns the value of mbr
-word_t read_mbr(cpu c) {
+word_t read_mbr(cpu c)
+{
   return c->s[MBR];
 }
 
 // Returns the value of mlr
-word_t read_mlr(cpu c) {
+word_t read_mlr(cpu c)
+{
   return c->s[MLR];
 }
 
 // Returns the value of tsr
-word_t read_tsr(cpu c) {
+word_t read_tsr(cpu c)
+{
   return c->s[TSR];
 }
 
 // Returns the value of tmr
-word_t read_tcr(cpu c) {
+word_t read_tcr(cpu c)
+{
   return c->s[TCR];
 }

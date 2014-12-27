@@ -12,9 +12,10 @@ typedef struct _cpu *cpu;
 
 // Construct a new CPU with provided base
 // memory pointer and a standard initialization.
-// Caller must free the returned cpu pointer and
-// the provided mem pointer.
-cpu new_cpu(memory *mem);
+cpu new_cpu(memory mem);
+
+// Frees the cpu provided.
+void free_cpu(cpu c);
 
 // Perform a cycle on the CPU
 void cycle(cpu c);
