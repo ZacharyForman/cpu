@@ -5,16 +5,8 @@
 // Additionaly exposes an API for inspecting
 // the CPU.
 
-#include <stdint.h>
-
-
-typedef int8_t   sbyte_t;
-typedef int16_t  shalfword_t;
-typedef int32_t  sword_t;
-
-typedef uint8_t  byte_t;
-typedef uint16_t halfword_t;
-typedef uint32_t word_t;
+#include "memory.h"
+#include "types.h"
 
 typedef struct _cpu *cpu;
 
@@ -22,7 +14,7 @@ typedef struct _cpu *cpu;
 // memory pointer and a standard initialization.
 // Caller must free the returned cpu pointer and
 // the provided mem pointer.
-cpu new_cpu(byte_t *mem);
+cpu new_cpu(memory *mem);
 
 // Perform a cycle on the CPU
 void cycle(cpu c);

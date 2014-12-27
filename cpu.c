@@ -63,8 +63,8 @@ struct _cpu {
   word_t s[8];
 
 
-  // Actual location of byte '0'.
-  byte_t *mem;
+  // Memory structure
+  memory *mem;
 
   // Has the processor halted?
   int halted;
@@ -96,13 +96,15 @@ void _execute_current_instruction(cpu c) {
 // Contains the L type operations
 #include "l_ops.c"
   }
+  // TODO(au.zachary.forman) Implement illegal instruction interrupt
+  FATAL("No such instruction %X", op);
 }
 
-// Construct a new CPU with provided base
-// memory pointer and a standard initialization.
+// Construct a new CPU with provided memory 
+// pointer and a standard initialization.
 // Caller must free the returned cpu pointer and
 // the provided mem pointer.
-cpu new_cpu(byte_t *mem) {
+cpu new_cpu(memory *mem) {
   cpu c = (cpu) malloc(sizeof(struct _cpu));
 
   c->pc  = 0x00000000;
