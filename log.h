@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #ifndef DEBUG_LEVEL
-#define DEBUG_LEVEL 0
+#define DEBUG_LEVEL 4
 #endif // DEBUG_LEVEL
 
 // Generic logging function. Prefer to use a specific variant.

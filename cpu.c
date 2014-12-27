@@ -80,14 +80,14 @@ void _fetch(cpu c)
     FATAL("Unaligned access");
   }
 
-  c->ir = *((word_t*)(c->mem) + c->pc);
+  c->ir = *memword(c->mem, c->pc);
   c->pc += 4;
 }
 
 // CPU internal function to execute the instruction in IR.
 void _execute_current_instruction(cpu c)
 {
-  word_t op = TYPE(c->ir);
+  word_t op = c->ir;
   switch (TYPE(op)) {
 // Contains the R type operations
 #include "r_ops.c"

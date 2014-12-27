@@ -16,6 +16,10 @@ int main(int argc, char **argv)
   *memword(mem, 4) = 0x20220003;
   *memword(mem, 8) = 0x00411822;
 
+  // Inspect memory
+  printf("Memory location %d = %X\n", 0, *memword(mem, 0));
+  printf("Memory location %d = %X\n", 4, *memword(mem, 4));
+  printf("Memory location %d = %X\n", 8, *memword(mem, 8));
   // Execute it
   cycle(c);
   cycle(c);

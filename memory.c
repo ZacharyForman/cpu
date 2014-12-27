@@ -49,17 +49,17 @@ word_t *_address(memory mem, word_t address)
 // Returns a pointer to the byte at address.
 byte_t *membyte(memory mem, word_t address)
 {
-  return ((byte_t*)_address(mem, address)) + (address & 0x0030000);
+  return ((byte_t*)_address(mem, address)) + (address & 0x003FFFF);
 }
 
 // Returns a pointer to the halfword at address.
 halfword_t *memhalfword(memory mem, word_t address)
 {
-  return ((halfword_t*)_address(mem, address)) + (address & 0x0030000);
+  return ((halfword_t*)_address(mem, address)) + (address & 0x003FFFF);
 }
 
 // Returns a pointer to the word at address.
 word_t *memword(memory mem, word_t address)
 {
-  return ((word_t*)_address(mem, address)) + (address & 0x0030000);
+  return ((word_t*)_address(mem, address)) + (address & 0x003FFFF);
 }
