@@ -1,10 +1,13 @@
 CC=gcc
 CFLAGS=-c -Wall
 
-all: cpu.o
+all: bin/cpu.o bin/memory.o
 
-cpu.o: cpu.h cpu.c log.h opcodes.h
+bin/cpu.o: cpu.h cpu.c log.h opcodes.h
 	CC -o bin/cpu.o $(CFLAGS) cpu.c
+
+bin/memory.o: memory.c memory.h types.h
+	CC -o bin/memory.o $(CFLAGS) memory.c
 
 test: test_opcodes
 
