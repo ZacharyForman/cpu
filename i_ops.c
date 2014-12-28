@@ -5,17 +5,18 @@
 // Arithmetic
 case ADDI: {
   sword_t a1, a2;
+  int ret = -1;
   a1 = (sword_t)c->r[I_SRC(op)];
   a2 = I_SGN(I_IMM(op));
   // Integer overflow
   if (a1 > 0 && a2 > INT_MAX - a1) {
-    return 3;
+    ret = 3;
   }
   if (a1 < 0 && a2 < INT_MIN - a1) {
-    return 3;
+    ret = 3;
   }
   c->r[I_DST(op)] = a1 + a2;
-  return -1;
+  return ret;
 }
 case ADDUI: {
   c->r[I_DST(op)] = c->r[I_SRC(op)] + I_IMM(op);
@@ -23,17 +24,18 @@ case ADDUI: {
 }
 case SUBI: {
   sword_t a1, a2;
+  int ret = -1;
   a1 = (sword_t)c->r[I_SRC(op)];
   a2 = I_SGN(I_IMM(op));
   // Integer overflow
   if (a1 > 0 && (-a2) > INT_MAX - a1) {
-    return 3;
+    ret = 3;
   }
   if (a1 < 0 && (-a2) < INT_MIN - a1) {
-    return 3;
+    ret = 3;
   }
   c->r[I_DST(op)] = a1 - a2;
-  return -1;
+  return ret;
 }
 case SUBUI: {
   c->r[I_DST(op)] = c->r[I_SRC(op)] - I_IMM(op);

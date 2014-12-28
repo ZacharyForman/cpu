@@ -23,11 +23,10 @@ case RFE: {
   return -1;
 }
 case TRAP: {
-  // If trap is enabled, trap, otherwise illegal instruction.
+  // If trap is enabled, trap.
   if (c->s[PSW] & (1<<15)) {
     return 7;
-  } else {
-    return 0;
   }
-  return -1;
+  // Illegal instruction.
+  return 0;
 }

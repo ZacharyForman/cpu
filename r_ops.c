@@ -16,6 +16,7 @@ case 0: {
     }
     case WAIT: {
       c->waiting = 1;
+      return -1;
     }
 
     // Shifts
@@ -64,17 +65,18 @@ case 0: {
     // Arithmetic:
     case ADD: {
       sword_t a1, a2;
+      int ret = -1;
       a1 = (sword_t)c->r[R_SRC1(op)];
       a2 = (sword_t)c->r[R_SRC2(op)];
       // Integer overflow
       if (a1 > 0 && a2 > INT_MAX - a1) {
-        return 3;
+        ret = 3;
       }
       if (a1 < 0 && a2 < INT_MIN - a1) {
-        return 3;
+        ret = 3;
       }
       c->r[R_DST(op)] = a1 + a2;
-      return -1;
+      return ret;
     }
     case ADDU: {
       c->r[dst] = c->r[src1] + c->r[src2];
@@ -82,17 +84,18 @@ case 0: {
     }
     case SUB: {
       sword_t a1, a2;
+      int ret = -1;
       a1 = (sword_t)c->r[R_SRC1(op)];
       a2 = (sword_t)c->r[R_SRC2(op)];
       // Integer overflow
       if (a1 > 0 && (-a2) > INT_MAX - a1) {
-        return 3;
+        ret = 3;
       }
       if (a1 < 0 && (-a2) < INT_MIN - a1) {
-        return 3;
+        ret = 3;
       }
       c->r[R_DST(op)] = a1 - a2;
-      return -1;
+      return ret;
     }
     case SUBU: {
       c->r[dst] = c->r[src1] - c->r[src2];
