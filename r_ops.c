@@ -11,10 +11,18 @@ case 0: {
       return -1;
     }
     case HALT: {
+      // Privileged instruction.
+      if (c->s[PSW] & 0x4) {
+        return 0;
+      }
       c->halted = 1;
       return -1;
     }
     case WAIT: {
+      // Privileged instruction.
+      if (c->s[PSW] & 0x4) {
+        return 0;
+      }
       c->waiting = 1;
       return -1;
     }
@@ -144,6 +152,10 @@ case 0: {
 
     // Special
     case MOVI2S: {
+      // Privileged instruction.
+      if (c->s[PSW] & 0x4) {
+        return 0;
+      }
       if (dst >= 1 && dst <= 7) {
         c->s[dst] = c->r[src1];
       } else {
@@ -152,6 +164,10 @@ case 0: {
       return -1;
     }
     case MOVS2I: {
+      // Privileged instruction.
+      if (c->s[PSW] & 0x4) {
+        return 0;
+      }
       if (src1 >= 1 && src1 <= 7) {
         c->r[dst] = c->s[src1];
       } else {

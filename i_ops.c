@@ -63,14 +63,46 @@ case LHI: {
 }
 
 // Control
+case BEQZ: {
+  int ret = -1;
+  sword_t addr = c->pc + I_SGN(I_IMM(op));
+  // Check for unaligned jump address.
+  if (addr % 4) {
+    ret = 1;
+  }
+  c->pc = addr;
+  return ret;
+}
+case BNEZ: {
+  int ret = -1;
+  sword_t addr = c->pc + I_SGN(I_IMM(op));
+  // Check for unaligned jump address.
+  if (addr % 4) {
+    ret = 1;
+  }
+  c->pc = addr;
+  return ret;
+}
 case JR: {
-  c->pc = c->r[I_SRC(op)];
-  return -1;
+  int ret = -1;
+  word_t addr = c->r[I_SRC(op)];
+  // Check for unaligned jump address.
+  if (addr % 4) {
+    ret = 1;
+  }
+  c->pc = addr;
+  return ret;
 }
 case JALR: {
+  int ret = -1;
+  word_t addr = c->r[I_SRC(op)];
+  // Check for unaligned jump address.
+  if (addr % 4) {
+    ret = 1;
+  }
   c->r[31] = c->pc;
-  c->pc = c->r[I_SRC(op)];
-  return -1;
+  c->pc = addr;
+  return ret;
 }
 
 // Shifts

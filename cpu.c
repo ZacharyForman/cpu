@@ -57,6 +57,8 @@ struct _cpu {
 
   // Current instruction
   word_t ir;
+  // Used for exceptions
+  word_t iaddr;
 
   // 32 general purpose registers. r0 is always 0.
   word_t r[32];
@@ -117,6 +119,7 @@ int _fetch(cpu c)
   }
 
   c->ir = *memword(c->mem, c->pc);
+  c->iaddr = c->pc;
   c->pc += 4;
 
   return -1;
@@ -148,9 +151,9 @@ int _cycle(cpu c)
   int ex;
 
   ex = _fetch(c);
-  // If fetch fails, return the exception.
   if (ex != -1) {
-    return ex;
+    print_cpu_details(stderr, c);
+    FATAL("Impossible.");
   }
   ex = _execute_current_instruction(c);
   c->r[0] = 0;
@@ -166,8 +169,17 @@ void cycle(cpu c)
   int ex;
   int haltable = 1;
 
-  // If halted, just return.
+  // If halted, do nothing.
   if (c->halted) {
+    return;
+  }
+
+  // TODO(au.zachary.forman) Handle the counter.
+
+  // TODO(au.zachary.forman) Check for interrupts
+
+  // If waiting and no interrupt, do nothing.
+  if (c->waiting) {
     return;
   }
 
@@ -187,8 +199,7 @@ void cycle(cpu c)
     case 7: {               // User initiated trap
       if ((c->s[PSW] & (1 << (8+ex))) && ((c->s[PSW] & 1) == 0)) {
         // Set XAR
-        // TODO(au.zachary.forman) Look into this a lot more.
-        c->s[XAR] = c->pc;
+        c->s[XAR] = c->iaddr;
         // Set master exception bit to 0
         c->s[PSW] &= ~1;
         // Set Up = u
