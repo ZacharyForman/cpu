@@ -8,6 +8,8 @@
 #include "memory.h"
 #include "types.h"
 
+#include <stdio.h>
+
 typedef struct _cpu *cpu;
 
 // Construct a new CPU with provided base
@@ -53,6 +55,6 @@ word_t read_tsr(cpu c);
 word_t read_tcr(cpu c);
 
 // Prints an array of details about the current state of c.
-void print_cpu_details(cpu c);
+void print_cpu_details(FILE *f, cpu c);
 
 #endif // _CPU_CPU_H

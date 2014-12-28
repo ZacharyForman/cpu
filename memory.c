@@ -1,5 +1,6 @@
 // Defines an implementation of memory
 
+#include "log.h"
 #include "memory.h"
 
 #include <stdlib.h>
@@ -65,12 +66,12 @@ word_t *memword(memory mem, word_t address)
 }
 
 // Prints the range of memory from 
-void print_words(memory mem, word_t start, unsigned range)
+void print_words(FILE *f, memory mem, word_t start, unsigned range)
 {
   word_t i;
-  fprintf(stdout, "Address:\tValue:\n");
+  fprintf(f, "Address:\tValue:\n");
   for (i = 0; i < range ; i++) {
-    fprintf(stdout, "%.8X:\t%.8X\n", 
+    fprintf(f, "%.8X:\t%.8X\n", 
       start + i*sizeof(word_t), 
       *memword(mem, start + i*sizeof(word_t)));
   }

@@ -5,6 +5,7 @@
 #include "log.h"
 #include "opcodes.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -70,37 +71,10 @@ struct _cpu {
   // Has the processor halted?
   int halted;
 
+  // Are we waiting for an interrupt?
+  int waiting;
+
 };
-
-// CPU internal function to fetch next instruction
-void _fetch(cpu c)
-{
-  if (c->pc % sizeof(word_t)) {
-    // TODO(au.zachary.forman) Trigger interrupt instead
-    FATAL("Unaligned access");
-  }
-
-  c->ir = *memword(c->mem, c->pc);
-  c->pc += 4;
-}
-
-// CPU internal function to execute the instruction in IR.
-void _execute_current_instruction(cpu c)
-{
-  word_t op = c->ir;
-  switch (TYPE(op)) {
-// Contains the R type operations
-#include "r_ops.c"
-
-// Contains the I type operations
-#include "i_ops.c"
-
-// Contains the L type operations
-#include "l_ops.c"
-  }
-  // TODO(au.zachary.forman) Implement illegal instruction interrupt
-  FATAL("No such instruction %X", op);
-}
 
 // Construct a new CPU with provided memory 
 // pointer and a standard initialization.
@@ -123,6 +97,7 @@ cpu new_cpu(memory mem)
   c->mem = mem;
 
   c->halted = 0;
+  c->waiting = 0;
 
   return c;
 }
@@ -133,19 +108,107 @@ void free_cpu(cpu c)
   free(c);
 }
 
+// CPU internal function to fetch next instruction
+int _fetch(cpu c)
+{
+  if (c->pc % sizeof(word_t)) {
+    // Memory access exception
+    return 1;
+  }
+
+  c->ir = *memword(c->mem, c->pc);
+  c->pc += 4;
+
+  return -1;
+}
+
+// CPU internal function to execute the instruction in IR.
+int _execute_current_instruction(cpu c)
+{
+  word_t op = c->ir;
+  switch (TYPE(op)) {
+// Contains the R type operations
+#include "r_ops.c"
+
+// Contains the I type operations
+#include "i_ops.c"
+
+// Contains the L type operations
+#include "l_ops.c"
+  }
+  INFO("No such instruction %X", op);
+  return 1;
+}
+
+// Perform a cycle on the CPU.
+// This function simply runs _fetch and _execute,
+// handling exceptions produced by them.
+int _cycle(cpu c)
+{
+  int ex;
+
+  ex = _fetch(c);
+  // If fetch fails, return the exception.
+  if (ex != -1) {
+    return ex;
+  }
+  ex = _execute_current_instruction(c);
+  c->r[0] = 0;
+
+  return ex;
+}
 
 // Perform a cycle on the CPU
 // This involves fetching the instruction at PC
 // and then executing it.
 void cycle(cpu c)
 {
+  int ex;
+  int haltable = 1;
+
+  // If halted, just return.
   if (c->halted) {
     return;
   }
-  
-  _fetch(c);
-  _execute_current_instruction(c);
-  c->r[0] = 0;
+
+  ex = _cycle(c);
+
+  // Handle exceptions
+  switch (ex) {
+    case -1: {
+      // no exception
+      return;
+    }
+    case 0:                 // Illegal instruction
+    case 1:                 // Illegal memory access
+    case 2:                 // Memory protection trap
+    case 3: haltable = 0;   // Integer overflow
+    case 4: haltable = 0;   // Floating point trap
+    case 7: {               // User initiated trap
+      if ((c->s[PSW] & (1 << (8+ex))) && ((c->s[PSW] & 1) == 0)) {
+        // Set XAR
+        // TODO(au.zachary.forman) Look into this a lot more.
+        c->s[XAR] = c->pc;
+        // Set master exception bit to 0
+        c->s[PSW] &= ~1;
+        // Set Up = u
+        c->s[PSW] = (c->s[PSW] & (~0x4)) | ((c->s[PSW] & 0x2) << 1);
+        // Set u = 0.
+        c->s[PSW] &= ~0x2;
+        // Jump into exception table
+        c->pc = c->s[XBR] + ex*sizeof(word_t);
+      } else {
+        c->halted = haltable;
+      }
+      return;
+    }
+    default: {
+      // Programming error.
+      ERROR("ERROR: Printing debug info");
+      print_cpu_details(stderr, c);
+      FATAL("Error: No such exception %d", ex);
+    }
+  }
 }
 
 // Utility functions
@@ -154,8 +217,8 @@ void cycle(cpu c)
 word_t read_register(cpu c, int reg)
 {
   if (reg < 0 || reg > 31) {
-    // TODO(au.zachary.forman) Reconsider.
-    FATAL("Register %d out of bounds", reg);
+    ERROR("Register %d out of bounds", reg);
+    return 0;
   }
   return c->r[reg];
 }
@@ -215,21 +278,21 @@ word_t read_tcr(cpu c)
 }
 
 // Prints an array of details about the current state of c.
-void print_cpu_details(cpu c)
+void print_cpu_details(FILE *f, cpu c)
 {
   int i;
   
-  fprintf(stdout, 
+  fprintf(f, 
     "\nCPU:\n PC: %.8X\t IR: %.8X\nPSW: %.8X\tXAR: %.8X\n"
     "XBR: %.8X\tMBR: %.8X\nMLR: %.8X\tTSR: %.8X\nTCR: %.8X\n\nRegisters:\n",
     c->pc, c->ir, c->s[PSW], c->s[XAR], c->s[XBR], c->s[MBR],
     c->s[MLR], c->s[TSR], c->s[TCR]);
 
   for (i = 0; i < 16; i++) {
-    fprintf(stdout, "r%.2d: %.8X\tr%.2d: %.8X\n", 
+    fprintf(f, "r%.2d: %.8X\tr%.2d: %.8X\n", 
       2*i, c->r[2*i], 2*i+1, c->r[2*i+1]);
   }
 
-  fprintf(stdout, "Current state: %s\n",
+  fprintf(f, "Current state: %s\n",
     c->halted ? "Halted" : "Executing");
 }

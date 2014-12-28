@@ -25,7 +25,7 @@ int main(int argc, char **argv)
   load_memory(mem, 0, instructions, sizeof(instructions)/sizeof(word_t));
 
   // Inspect memory
-  print_words(mem, 0, 10);
+  print_words(stdout, mem, 0, 10);
   
   // Execute it
   cycle(c);
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
   cycle(c);
 
   // Inspect results
-  print_cpu_details(c);
+  print_cpu_details(stdout, c);
 
   // Free objects
   free_cpu(c);

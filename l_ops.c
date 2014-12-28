@@ -5,12 +5,12 @@
 // Control instructions
 case J: {
   c->pc += L_SGN(L_IMM(op));
-  return;
+  return -1;
 }
 case JAL: {
   c->r[31] = c->pc;
   c->pc += L_SGN(L_IMM(op));
-  return;
+  return -1;
 }
 case RFE: {
   c->pc = c->s[XAR];
@@ -20,10 +20,14 @@ case RFE: {
   // set exceptions to on
   psw |= 0x1;
   c->s[PSW] = psw;
-  return;
+  return -1;
 }
 case TRAP: {
-  // TODO(au.zachary.forman): Enable exceptions
-  FATAL("Exceptions are not yet enabled");
-  return;
+  // If trap is enabled, trap, otherwise illegal instruction.
+  if (c->s[PSW] & (1<<15)) {
+    return 7;
+  } else {
+    return 0;
+  }
+  return -1;
 }
