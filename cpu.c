@@ -32,11 +32,15 @@
 // Address of 15 word table of exception handlers
 #define XBR 0x03
 
+// TODO(au.zachary.forman) Implement MBR and MLR.
+
 // Added to all addresses while in user-mode
 #define MBR 0x04
 
-// Number of bytes accessible in user mode, relative to mbr.
+// Upper limit of bytes accessible.
 #define MLR 0x05
+
+// TODO(au.zachary.forman) Implement the timer.
 
 // Timer status word
 // 0  -> start timer
@@ -66,6 +70,7 @@ struct _cpu {
   // 7 special purpose registers, detailed above.
   word_t s[8];
 
+  // TODO(au.zachary.forman) Allow provision for interrupts.
 
   // Memory structure
   memory mem;
