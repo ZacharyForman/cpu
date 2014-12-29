@@ -120,6 +120,54 @@ void free_cpu(cpu c)
   free(c);
 }
 
+// Handle the given exception.
+void _handle_exception(cpu c, int ex)
+{
+  int haltable = 1;
+  switch (ex) {
+    case -1: {
+      // no exception
+      return;
+    }
+    case 0:                 // Illegal instruction
+    case 1:                 // Illegal memory access
+    case 2:                 // Memory protection trap
+    case 3: haltable = 0;   // Integer overflow
+    case 4: haltable = 0;   // Floating point trap
+    case 7:                 // User initiated trap
+    case 8:                 // Interrupt
+    case 9:                 // Interrupt
+    case 10:                // Interrupt
+    case 11:                // Interrupt
+    case 12:                // Interrupt
+    case 13:                // Interrupt
+    case 14:                // Interrupt
+    case 15: {              // Interrupt
+      if ((c->s[PSW] & (1 << (8+ex))) && ((c->s[PSW] & 1) == 0)) {
+        // Set XAR
+        c->s[XAR] = c->iaddr;
+        // Set master exception bit to 0
+        c->s[PSW] &= ~1;
+        // Set Up = u
+        c->s[PSW] = (c->s[PSW] & (~0x4)) | ((c->s[PSW] & 0x2) << 1);
+        // Set u = 0.
+        c->s[PSW] &= ~0x2;
+        // Jump into exception table
+        c->pc = c->s[XBR] + ex*sizeof(word_t);
+      } else {
+        c->halted = haltable;
+      }
+      return;
+    }
+    default: {
+      // Programming error.
+      ERROR("ERROR: Printing debug info");
+      print_cpu_details(stderr, c);
+      FATAL("Error: No such exception %d", ex);
+    }
+  }
+}
+
 // CPU internal function to fetch next instruction
 int _fetch(cpu c)
 {
@@ -177,7 +225,6 @@ int _cycle(cpu c)
 void cycle(cpu c)
 {
   int ex, i;
-  int haltable = 1;
 
   // If halted, do nothing.
   if (c->halted) {
@@ -187,32 +234,27 @@ void cycle(cpu c)
   // Handle the timer.
   if (c->s[TSR] & 1) {
     if (c->s[TCR] == 0) {
-      // TODO: When to set to not ready?
+      // Set ready
       c->s[TSR] |= (0x1 << 7);
+      // Set off
       c->s[TSR] &= ~(0x1);
-      // If interrupts are enabled for the timer
-      if (c->s[TSR] & (0x1 << 6)) {
-        c->pending_interrupts |= (c->s[TSR] & INTERRUPT_MASK);
-      }
     } else {
       c->s[TCR] -= 1;
     }
+  }
+
+  // If interrupts are enabled for the timer
+  // and the timer is in a ready state, fire an interrupt
+  if ((c->s[TSR] & (0x1 << 6)) && (c->s[TSR] & (0x1 << 7))) {
+    c->pending_interrupts |= (c->s[TSR] & INTERRUPT_MASK);
   }
 
   // Check for interrupts:
   if (c->pending_interrupts & INTERRUPT_MASK) {
     for (i = 0; i < 8; i++) {
       if (c->pending_interrupts & (0x1 << i)) {
-        // Set XAR
-        c->s[XAR] = c->pc;
-        // Set master exception bit to 0
-        c->s[PSW] &= ~1;
-        // Set Up = u
-        c->s[PSW] = (c->s[PSW] & (~0x4)) | ((c->s[PSW] & 0x2) << 1);
-        // Set u = 0.
-        c->s[PSW] &= ~0x2;
-        // Jump into exception table
-        c->pc = c->s[XBR] + (i+7)*sizeof(word_t);
+        _handle_exception(c, i+7);
+        c->pending_interrupts &= ~(0x1 << i);
       }
     }
   }
@@ -225,40 +267,7 @@ void cycle(cpu c)
   ex = _cycle(c);
 
   // Handle exceptions
-  switch (ex) {
-    case -1: {
-      // no exception
-      return;
-    }
-    case 0:                 // Illegal instruction
-    case 1:                 // Illegal memory access
-    case 2:                 // Memory protection trap
-    case 3: haltable = 0;   // Integer overflow
-    case 4: haltable = 0;   // Floating point trap
-    case 7: {               // User initiated trap
-      if ((c->s[PSW] & (1 << (8+ex))) && ((c->s[PSW] & 1) == 0)) {
-        // Set XAR
-        c->s[XAR] = c->iaddr;
-        // Set master exception bit to 0
-        c->s[PSW] &= ~1;
-        // Set Up = u
-        c->s[PSW] = (c->s[PSW] & (~0x4)) | ((c->s[PSW] & 0x2) << 1);
-        // Set u = 0.
-        c->s[PSW] &= ~0x2;
-        // Jump into exception table
-        c->pc = c->s[XBR] + ex*sizeof(word_t);
-      } else {
-        c->halted = haltable;
-      }
-      return;
-    }
-    default: {
-      // Programming error.
-      ERROR("ERROR: Printing debug info");
-      print_cpu_details(stderr, c);
-      FATAL("Error: No such exception %d", ex);
-    }
-  }
+  _handle_exception(c, ex);
 }
 
 // Utility functions
@@ -285,48 +294,15 @@ word_t read_ir(cpu c)
   return c->ir;
 }
 
-// Returns the value of psw.
-word_t read_psw(cpu c)
+// Returns the value of the special register special.
+word_t read_special(cpu c, int special)
 {
-  return c->s[PSW];
+  if (special < 0 || special > 8) {
+    ERROR("Register %d out of bounds", special);
+    return 0;
+  }
+  return c->s[special];
 }
-
-// Returns the value of xar
-word_t read_xar(cpu c)
-{
-  return c->s[XAR];
-}
-
-// Returns the value of xbr
-word_t read_xbr(cpu c)
-{
-  return c->s[XBR];
-}
-
-// Returns the value of mbr
-word_t read_mbr(cpu c)
-{
-  return c->s[MBR];
-}
-
-// Returns the value of mlr
-word_t read_mlr(cpu c)
-{
-  return c->s[MLR];
-}
-
-// Returns the value of tsr
-word_t read_tsr(cpu c)
-{
-  return c->s[TSR];
-}
-
-// Returns the value of tmr
-word_t read_tcr(cpu c)
-{
-  return c->s[TCR];
-}
-
 // Prints an array of details about the current state of c.
 void print_cpu_details(FILE *f, cpu c)
 {
