@@ -40,8 +40,6 @@
 // Upper limit of bytes accessible.
 #define MLR 0x05
 
-// TODO(au.zachary.forman) Implement the timer.
-
 // Timer status word
 // 0  -> start timer
 // 6  -> interrupt enable
@@ -53,6 +51,10 @@
 
 // Timer; decremented by one each cycle.
 #define TCR 0x07
+
+// Interrupt mask: The bits of a register
+// that control interrupts.
+#define INTERRUPT_MASK 0x00FF0000
 
 // Internal representation of the CPU.
 struct _cpu {
@@ -70,7 +72,8 @@ struct _cpu {
   // 7 special purpose registers, detailed above.
   word_t s[8];
 
-  // TODO(au.zachary.forman) Allow provision for interrupts.
+  // Bits 16-23 indicate if an interrupt is pending or not.
+  word_t pending_interrupts;
 
   // Memory structure
   memory mem;
@@ -102,6 +105,8 @@ cpu new_cpu(memory mem)
   c->s[TCR] = 0x00000000;
 
   c->mem = mem;
+
+  c->pending_interrupts = 0x00000000;
 
   c->halted = 0;
   c->waiting = 0;
@@ -171,7 +176,7 @@ int _cycle(cpu c)
 // and then executing it.
 void cycle(cpu c)
 {
-  int ex;
+  int ex, i;
   int haltable = 1;
 
   // If halted, do nothing.
@@ -179,9 +184,38 @@ void cycle(cpu c)
     return;
   }
 
-  // TODO(au.zachary.forman) Handle the counter.
+  // Handle the timer.
+  if (c->s[TSR] & 1) {
+    if (c->s[TCR] == 0) {
+      // TODO: When to set to not ready?
+      c->s[TSR] |= (0x1 << 7);
+      c->s[TSR] &= ~(0x1);
+      // If interrupts are enabled for the timer
+      if (c->s[TSR] & (0x1 << 6)) {
+        c->pending_interrupts |= (c->s[TSR] & INTERRUPT_MASK);
+      }
+    } else {
+      c->s[TCR] -= 1;
+    }
+  }
 
-  // TODO(au.zachary.forman) Check for interrupts
+  // Check for interrupts:
+  if (c->pending_interrupts & INTERRUPT_MASK) {
+    for (i = 0; i < 8; i++) {
+      if (c->pending_interrupts & (0x1 << i)) {
+        // Set XAR
+        c->s[XAR] = c->pc;
+        // Set master exception bit to 0
+        c->s[PSW] &= ~1;
+        // Set Up = u
+        c->s[PSW] = (c->s[PSW] & (~0x4)) | ((c->s[PSW] & 0x2) << 1);
+        // Set u = 0.
+        c->s[PSW] &= ~0x2;
+        // Jump into exception table
+        c->pc = c->s[XBR] + (i+7)*sizeof(word_t);
+      }
+    }
+  }
 
   // If waiting and no interrupt, do nothing.
   if (c->waiting) {

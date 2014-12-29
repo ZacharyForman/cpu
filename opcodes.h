@@ -120,8 +120,6 @@
 #define LHI    0x0F
 
 // Control
-#define BEQZ   0x10
-#define BNEZ   0x11
 #define JR     0x12
 #define JALR   0x13
 
@@ -162,8 +160,10 @@
 // Control
 #define J      0x02
 #define JAL    0x03
+#define BEQZ   0x04
+#define BNEZ   0x05
 
-#define RFE    0x40
-#define TRAP   0x41
+#define RFE    0x10
+#define TRAP   0x11
 
 #endif // _CPU_OPCODES_H
