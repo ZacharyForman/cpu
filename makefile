@@ -1,17 +1,20 @@
 CC=gcc
 CFLAGS=-c -Wall
 
-all: bin/driver.o bin/cpu.o bin/memory.o
-	CC -o bin/driver bin/driver.o bin/cpu.o bin/memory.o
+all: bin/driver.o bin/cpu.o bin/memory.o bin/disassembler.o
+	$(CC) -o bin/driver bin/driver.o bin/cpu.o bin/memory.o bin/disassembler.o
 
 bin/driver.o: driver.c
-	CC -o bin/driver.o $(CFLAGS) driver.c
+	$(CC) -o bin/driver.o $(CFLAGS) driver.c
 
 bin/cpu.o: cpu.h cpu.c log.h opcodes.h i_ops.c r_ops.c l_ops.c types.h
-	CC -o bin/cpu.o $(CFLAGS) cpu.c
+	$(CC) -o bin/cpu.o $(CFLAGS) cpu.c
 
 bin/memory.o: memory.c memory.h types.h
-	CC -o bin/memory.o $(CFLAGS) memory.c
+	$(CC) -o bin/memory.o $(CFLAGS) memory.c
+
+bin/disassembler.o: disassembler.c disassembler.h opcodes.h
+	$(CC) -o bin/disassembler.o $(CFLAGS) disassembler.c
 
 test: test_opcodes test_memory
 

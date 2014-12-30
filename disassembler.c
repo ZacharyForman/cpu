@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define COMMAND_LEN 32
+#define COMMAND_LEN 64
 
 #define I(tab, instr) \
   do { \
@@ -19,6 +19,10 @@ char **disassemble(word_t *instr, int sz)
   int i;
   char **lookup = malloc(sizeof(char*) * (1 << 7));
   char **r_lookup = malloc(sizeof(char*) * (1 << 7));
+  for (i = 0; i < (i<<7); i++) {
+    lookup[i] = 0;
+    r_lookup[i] = 0;
+  }
   char *special_reg_lookup[] = {
     "UNKNOWN",
     "PSW",
@@ -109,7 +113,9 @@ char **disassemble(word_t *instr, int sz)
     res[i] = (char*) malloc(COMMAND_LEN);
     switch(TYPE(instr[i])) {
       case 0: {
-        if (instr[i] == MOVS2I) {
+        if (r_lookup[R_TYPE(instr[i])] == 0) {
+          sprintf(res[i], "%s", "UNKNOWN");
+        } else if (instr[i] == MOVS2I) {
           sprintf(res[i], "%s\t%d, %s",
             lookup[R_TYPE(instr[i])],
             R_DST(instr[i]),
@@ -126,7 +132,7 @@ char **disassemble(word_t *instr, int sz)
             r_lookup[R_TYPE(instr[i])]);
         } else {
           sprintf(res[i], "%s\tr%d, r%d, r%d",
-          lookup[R_TYPE(instr[i])],
+          r_lookup[R_TYPE(instr[i])],
           R_DST(instr[i]),
           R_SRC1(instr[i]),
           R_SRC2(instr[i]));
@@ -191,7 +197,9 @@ char **disassemble(word_t *instr, int sz)
       }
       default: {
         char *s = lookup[TYPE(instr[i])];
-        if (s[strlen(s)-1] == 'U') {
+        if (s == 0) {
+          sprintf(res[i], "%s", "UNKNOWN");
+        } else if (s[strlen(s)-1] == 'U') {
           sprintf(res[i], "%s\tr%d, r%d, %u",
             s, I_DST(instr[i]),
             I_SRC(instr[i]),

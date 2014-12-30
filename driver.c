@@ -1,12 +1,15 @@
 // Driver for CPU simulator
 
 #include "cpu.h"
+#include "disassembler.h"
 #include "memory.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
+  int i;
   // Create objects
   memory mem = new_memory();
   cpu c = new_cpu(mem);
@@ -23,6 +26,15 @@ int main(int argc, char **argv)
 
   // Load it into the memory
   load_memory(mem, 0, instructions, sizeof(instructions)/sizeof(word_t));
+
+  printf("Program to be executed:\n");
+  char **s = disassemble(instructions, 5);
+  for (i = 0; i < 5; i++) {
+    printf("%s\n", s[i]);
+    free(s[i]);
+  }
+  free(s);
+  printf("\n");
 
   // Inspect memory
   print_words(stdout, mem, 0, 10);
