@@ -17,13 +17,13 @@
 char **disassemble(word_t *instr, int sz)
 {
   int i;
-  char **lookup = (char**) malloc(sizeof(char*) * (1 << 7));
-  char **r_lookup = (char**) malloc(sizeof(char*) * (1 << 7));
-  for (i = 0; i < (1<<7); i++) {
+  char *lookup[1<<6];
+  char *r_lookup[1<<6];
+  for (i = 0; i < (1<<6); i++) {
     lookup[i] = 0;
     r_lookup[i] = 0;
   }
-  char *special_reg_lookup[] = {
+  char *special_reg_lookup[8] = {
     "UNKNOWN",
     "PSW",
     "XAR",
@@ -116,15 +116,23 @@ char **disassemble(word_t *instr, int sz)
         if (r_lookup[R_TYPE(instr[i])] == 0) {
           sprintf(res[i], "%s", "UNKNOWN");
         } else if (instr[i] == MOVS2I) {
-          sprintf(res[i], "%s\t%d, %s",
-            lookup[R_TYPE(instr[i])],
-            R_DST(instr[i]),
-            special_reg_lookup[R_SRC1(instr[i])]);
+          if (r_lookup[R_TYPE(instr[i])] == 0) {
+            sprintf(res[i], "%s", "UNKNOWN");
+          } else {
+            sprintf(res[i], "%s\t%d, %s",
+              lookup[R_TYPE(instr[i])],
+              R_DST(instr[i]),
+              special_reg_lookup[R_SRC1(instr[i])]);
+          }
         } else if (instr[i] == MOVI2S) {
-          sprintf(res[i], "%s\t%s, %d",
-            lookup[R_TYPE(instr[i])],
-            special_reg_lookup[R_DST(instr[i])],
-            R_SRC1(instr[i]));
+          if (R_DST(instr[i]) > 8) {
+            sprintf(res[i], "%s", "UNKNOWN");
+          } else {
+            sprintf(res[i], "%s\t%s, %d",
+              lookup[R_TYPE(instr[i])],
+              special_reg_lookup[R_DST(instr[i])],
+              R_SRC1(instr[i]));
+          }
         } else if (instr[i] == NOP ||
             instr[i] == HALT ||
             instr[i] == WAIT) {
