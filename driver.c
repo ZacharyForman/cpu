@@ -28,8 +28,8 @@ int main(int argc, char **argv)
   load_memory(mem, 0, instructions, sizeof(instructions)/sizeof(word_t));
 
   printf("Program to be executed:\n");
-  char **s = disassemble(instructions, 5);
-  for (i = 0; i < 5; i++) {
+  char **s = disassemble(instructions, 6);
+  for (i = 0; i < 6; i++) {
     printf("%s\n", s[i]);
     free(s[i]);
   }

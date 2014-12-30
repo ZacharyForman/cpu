@@ -17,9 +17,9 @@
 char **disassemble(word_t *instr, int sz)
 {
   int i;
-  char **lookup = malloc(sizeof(char*) * (1 << 7));
-  char **r_lookup = malloc(sizeof(char*) * (1 << 7));
-  for (i = 0; i < (i<<7); i++) {
+  char **lookup = (char**) malloc(sizeof(char*) * (1 << 7));
+  char **r_lookup = (char**) malloc(sizeof(char*) * (1 << 7));
+  for (i = 0; i < (1<<7); i++) {
     lookup[i] = 0;
     r_lookup[i] = 0;
   }
