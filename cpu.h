@@ -33,26 +33,8 @@ word_t read_ir(cpu c);
 // Returns the value of register reg.
 word_t read_register(cpu c, int reg);
 
-// Returns the value of psw.
-word_t read_psw(cpu c);
-
-// Returns the value of xar
-word_t read_xar(cpu c);
-
-// Returns the value of xbr
-word_t read_xbr(cpu c);
-
-// Returns the value of mbr
-word_t read_mbr(cpu c);
-
-// Returns the value of mlr
-word_t read_mlr(cpu c);
-
-// Returns the value of tsr
-word_t read_tsr(cpu c);
-
-// Returns the value of tcr
-word_t read_tcr(cpu c);
+// Returns the value of special register special
+word_t read_special(cpu c, int reg);
 
 // Prints an array of details about the current state of c.
 void print_cpu_details(FILE *f, cpu c);
