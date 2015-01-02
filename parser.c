@@ -98,6 +98,18 @@ COND_IN_STR(space2, "p");
 COND_IN_STR(space3, "a");
 COND_IN_STR(space4, "c");
 COND_IN_STR(space5, "e");
+COND_IN_STR(word1, "w");
+COND_IN_STR(word2, "o");
+COND_IN_STR(word3, "r");
+COND_IN_STR(word4, "d");
+COND_IN_STR(half1, "h");
+COND_IN_STR(half2, "a");
+COND_IN_STR(half3, "l");
+COND_IN_STR(half4, "f");
+COND_IN_STR(byte1, "b");
+COND_IN_STR(byte2, "y");
+COND_IN_STR(byte3, "t");
+COND_IN_STR(byte4, "e");
 
 
 // Terminal functions
@@ -128,6 +140,26 @@ void apply_word_num(parse_state *ps, int pn)
 }
 
 void apply_word_ident(parse_state *ps, int pn)
+{
+
+}
+
+void apply_half_num(parse_state *ps, int pn)
+{
+
+}
+
+void apply_half_ident(parse_state *ps, int pn)
+{
+
+}
+
+void apply_byte_num(parse_state *ps, int pn)
+{
+
+}
+
+void apply_byte_ident(parse_state *ps, int pn)
 {
 
 }
@@ -207,6 +239,34 @@ state *dlx_parsing_state()
                     construct_state(identifier, NULL, 0, 1, 1,
                       construct_state(eol, apply_word_ident, STOP, 0, 0)
       ))))))));
+
+  state *half_state
+    = construct_state(dot, NULL, 0, 0, 1,
+        construct_state(half1, NULL, 0, 0, 1,
+          construct_state(half2, NULL, 0, 0, 1,
+            construct_state(half3, NULL, 0, 0, 1,
+              construct_state(half4, NULL, 0, 0, 1,
+                construct_state(whitespace, NULL, 0, 1, 2,
+                  construct_state(number, NULL, START, 1, 1,
+                    construct_state(eol, apply_half_num, STOP, 0, 0)),
+                  construct_state(ascii, NULL, START, 0, 1,
+                    construct_state(identifier, NULL, 0, 1, 1,
+                      construct_state(eol, apply_half_ident, STOP, 0, 0)
+      ))))))));
+
+  state *byte_state
+    = construct_state(dot, NULL, 0, 0, 1,
+        construct_state(byte1, NULL, 0, 0, 1,
+          construct_state(byte2, NULL, 0, 0, 1,
+            construct_state(byte3, NULL, 0, 0, 1,
+              construct_state(byte4, NULL, 0, 0, 1,
+                construct_state(whitespace, NULL, 0, 1, 2,
+                  construct_state(number, NULL, START, 1, 1,
+                    construct_state(eol, apply_byte_num, STOP, 0, 0)),
+                  construct_state(ascii, NULL, START, 0, 1,
+                    construct_state(identifier, NULL, 0, 1, 1,
+                      construct_state(eol, apply_byte_ident, STOP, 0, 0)
+      ))))))));
               
 
   state *post_label_state
@@ -223,9 +283,16 @@ state *dlx_parsing_state()
             equ_state
       )));
 
+  state *leading_whitespace_state
+    = construct_state(whitespace, NULL, 0, 1, 2,
+        optional_label_state,
+        post_label_state
+      );
+
   state *base_state
-    = construct_state(epsilon, NULL, 0, 0, 2,
-        optional_label_state, 
+    = construct_state(epsilon, NULL, 0, 0, 3,
+        leading_whitespace_state,
+        optional_label_state,
         post_label_state
       );
 
