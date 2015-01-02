@@ -9,8 +9,8 @@ typedef struct _map *map;
 // Parser that currently only compiles absolute segments.
 
 // Whether to tokenize at this point
-#define START_TOKEN 1
-#define STOP_TOKEN -1
+#define START 1
+#define STOP -1
 
 // Struct that represents the current parsing
 // state of the entire input.
@@ -122,6 +122,16 @@ void apply_space_ident(parse_state *ps, int pn)
 
 }
 
+void apply_word_num(parse_state *ps, int pn)
+{
+
+}
+
+void apply_word_ident(parse_state *ps, int pn)
+{
+
+}
+
 state *construct_state(int (*cond)(char), void (*op)(parse_state*, int), 
   int tok, int self, int len, ...)
 {
@@ -153,19 +163,21 @@ state *construct_state(int (*cond)(char), void (*op)(parse_state*, int),
 
 state *dlx_parsing_state()
 {
-  // TODO: Let you have arbitrary cool $ + 3, $ + 16#FF, etc. stuff
+  // TODO(zforman) Let you have arbitrary cool $ + 3, $ + 16#FF, etc. stuff
   state *equ_state 
     = construct_state(dot, NULL, 0, 0, 1,
         construct_state(equ1, NULL, 0, 0, 1,
           construct_state(equ2, NULL, 0, 0, 1,
             construct_state(equ3, NULL, 0, 0, 1,
-              construct_state(number, NULL, START_TOKEN, 1, 1,
-                construct_state(eol, apply_equ_num, STOP_TOKEN, 0, 0)),
-              construct_state(lowercase, NULL, START_TOKEN, 0, 1,
-                construct_state(identifier, NULL, 0, 1, 1,
-                  construct_state(eol, apply_equ_ident, STOP_TOKEN, 0, 0)
-      ))))));
+              construct_state(whitespace, NULL, 0, 1, 2,
+                construct_state(number, NULL, START, 1, 1,
+                  construct_state(eol, apply_equ_num, STOP, 0, 0)),
+                construct_state(ascii, NULL, START, 0, 1,
+                  construct_state(identifier, NULL, 0, 1, 1,
+                    construct_state(eol, apply_equ_ident, STOP, 0, 0)
+      )))))));
 
+  // TODO(zforman) Let you have arbitrary cool $ + 3, $ + 16#FF, etc. stuff
   state *space_state 
     = construct_state(dot, NULL, 0, 0, 1,
         construct_state(space1, NULL, 0, 0, 1,
@@ -173,23 +185,40 @@ state *dlx_parsing_state()
             construct_state(space3, NULL, 0, 0, 1,
               construct_state(space4, NULL, 0, 0, 1,
                 construct_state(space5, NULL, 0, 0, 1,
-                  construct_state(number, NULL, START_TOKEN, 1, 1,
-                    construct_state(eol, apply_space_num, STOP_TOKEN, 0, 0)),
-                  construct_state(lowercase, NULL, START_TOKEN, 0, 1,
+                  construct_state(whitespace, NULL, 0, 1, 2,
+                    construct_state(number, NULL, START, 1, 1,
+                      construct_state(eol, apply_space_num, STOP, 0, 0)),
+                    construct_state(ascii, NULL, START, 0, 1,
+                      construct_state(identifier, NULL, 0, 1, 1,
+                        construct_state(eol, apply_space_ident, STOP, 0, 0)
+      )))))))));
+
+  // TODO(zforman) Allow for multiple vars in one word_state.
+  state *word_state
+    = construct_state(dot, NULL, 0, 0, 1,
+        construct_state(word1, NULL, 0, 0, 1,
+          construct_state(word2, NULL, 0, 0, 1,
+            construct_state(word3, NULL, 0, 0, 1,
+              construct_state(word4, NULL, 0, 0, 1,
+                construct_state(whitespace, NULL, 0, 1, 2,
+                  construct_state(number, NULL, START, 1, 1,
+                    construct_state(eol, apply_word_num, STOP, 0, 0)),
+                  construct_state(ascii, NULL, START, 0, 1,
                     construct_state(identifier, NULL, 0, 1, 1,
-                      construct_state(eol, apply_space_ident, STOP_TOKEN, 0, 0)
+                      construct_state(eol, apply_word_ident, STOP, 0, 0)
       ))))))));
               
 
   state *post_label_state
     = construct_state(epsilon, NULL, 0, 0, 1, 
-        space_state
+        space_state,
+        word_state
       );
 
   state *optional_label_state 
-    = construct_state(ascii, NULL, START_TOKEN, 0, 1,
+    = construct_state(ascii, NULL, START, 0, 1,
         construct_state(identifier, NULL, 0, 1, 1,
-          construct_state(whitespace, NULL, STOP_TOKEN, 1, 2,
+          construct_state(whitespace, NULL, STOP, 1, 2,
             post_label_state,
             equ_state
       )));
