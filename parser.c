@@ -44,7 +44,8 @@ struct _state {
   // on termination at this state.
   // If null, state is not terminal.
   // Modifies the parse state given to it.
-  void (*operate)(parse_state *ps);
+  // Uses parse number pn to do work.
+  void (*operate)(parse_state *ps, int pn);
   //  1 => start a token
   // -1 => stop a token
   //  0 => do nothing.
@@ -92,22 +93,37 @@ COND_IN_STR(register2c, "01");
 COND_IN_STR(equ1, "e");
 COND_IN_STR(equ2, "q");
 COND_IN_STR(equ3, "u");
+COND_IN_STR(space1, "s");
+COND_IN_STR(space2, "p");
+COND_IN_STR(space3, "a");
+COND_IN_STR(space4, "c");
+COND_IN_STR(space5, "e");
 
 
 // Terminal functions
 
-void apply_equ_num(parse_state *ps)
+void apply_equ_num(parse_state *ps, int pn)
 {
 
 }
 
-void apply_equ_ident(parse_state *ps)
+void apply_equ_ident(parse_state *ps, int pn)
 {
 
 }
 
-state *construct_state(int (*cond)(char), void (*op)(parse_state*), int tok,
-  int self, int len, ...)
+void apply_space_num(parse_state *ps, int pn)
+{
+
+}
+
+void apply_space_ident(parse_state *ps, int pn)
+{
+
+}
+
+state *construct_state(int (*cond)(char), void (*op)(parse_state*, int), 
+  int tok, int self, int len, ...)
 {
   int i = 0;
   va_list states;
@@ -147,24 +163,42 @@ state *dlx_parsing_state()
                 construct_state(eol, apply_equ_num, STOP_TOKEN, 0, 0)),
               construct_state(lowercase, NULL, START_TOKEN, 0, 1,
                 construct_state(identifier, NULL, 0, 1, 1,
-                  construct_state(eol, apply_equ_ident, STOP_TOKEN, 0, 0)))))));
+                  construct_state(eol, apply_equ_ident, STOP_TOKEN, 0, 0)
+      ))))));
 
+  state *space_state 
+    = construct_state(dot, NULL, 0, 0, 1,
+        construct_state(space1, NULL, 0, 0, 1,
+          construct_state(space2, NULL, 0, 0, 1,
+            construct_state(space3, NULL, 0, 0, 1,
+              construct_state(space4, NULL, 0, 0, 1,
+                construct_state(space5, NULL, 0, 0, 1,
+                  construct_state(number, NULL, START_TOKEN, 1, 1,
+                    construct_state(eol, apply_space_num, STOP_TOKEN, 0, 0)),
+                  construct_state(lowercase, NULL, START_TOKEN, 0, 1,
+                    construct_state(identifier, NULL, 0, 1, 1,
+                      construct_state(eol, apply_space_ident, STOP_TOKEN, 0, 0)
+      ))))))));
+              
 
   state *post_label_state
     = construct_state(epsilon, NULL, 0, 0, 1, 
-        equ_state
+        space_state
       );
 
   state *optional_label_state 
     = construct_state(ascii, NULL, START_TOKEN, 0, 1,
         construct_state(identifier, NULL, 0, 1, 1,
           construct_state(whitespace, NULL, STOP_TOKEN, 1, 2,
-            post_label_state)));
+            post_label_state,
+            equ_state
+      )));
 
   state *base_state
     = construct_state(epsilon, NULL, 0, 0, 2,
         optional_label_state, 
-        post_label_state);
+        post_label_state
+      );
 
     return base_state;
 }
