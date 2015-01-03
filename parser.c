@@ -110,6 +110,7 @@ COND_IN_STR(byte1, "b");
 COND_IN_STR(byte2, "y");
 COND_IN_STR(byte3, "t");
 COND_IN_STR(byte4, "e");
+COND_IN_STR(uns, "u");
 
 
 // Terminal functions
@@ -133,6 +134,8 @@ void apply_space_ident(parse_state *ps, int pn)
 {
 
 }
+
+// Signed data
 
 void apply_word_num(parse_state *ps, int pn)
 {
@@ -160,6 +163,54 @@ void apply_byte_num(parse_state *ps, int pn)
 }
 
 void apply_byte_ident(parse_state *ps, int pn)
+{
+
+}
+
+// Unsigned data
+
+void apply_wordu_num(parse_state *ps, int pn)
+{
+
+}
+
+void apply_wordu_ident(parse_state *ps, int pn)
+{
+
+}
+
+void apply_halfu_num(parse_state *ps, int pn)
+{
+
+}
+
+void apply_halfu_ident(parse_state *ps, int pn)
+{
+
+}
+
+void apply_byteu_num(parse_state *ps, int pn)
+{
+
+}
+
+void apply_byteu_ident(parse_state *ps, int pn)
+{
+
+}
+
+
+void write_r_instruction(parse_state *ps, int pn)
+{
+
+}
+
+void write_i_instruction(parse_state *ps, int pn)
+{
+
+}
+
+void write_l_instruction(parse_state *ps, int pn)
 {
 
 }
@@ -193,6 +244,39 @@ state *construct_state(int (*cond)(char), void (*op)(parse_state*, int),
   return ret;
 }
 
+state *make_instruction_state()
+{
+
+
+  state *base_state = construct_state(epsilon, NULL, 0, 0, 26,
+    nop_state,
+    halt_state,
+    wait_state,
+    add_state,
+    sub_state,
+    seq_state,
+    sne_state,
+    slt_state,
+    sgt_state,
+    sle_state,
+    sge_state,
+    sl_state,
+    sr_state,
+    and_state,
+    or_state,
+    xor_state,
+    jr_state,
+    jalr_state,
+    lhi_state,
+    load_state,
+    j_state,
+    jal_state,
+    rfe_state,
+    trap_state,
+    movi2s_state,
+    movs2i_state);
+}
+
 state *dlx_parsing_state()
 {
   // TODO(zforman) Let you have arbitrary cool $ + 3, $ + 16#FF, etc. stuff
@@ -202,12 +286,17 @@ state *dlx_parsing_state()
           construct_state(equ2, NULL, 0, 0, 1,
             construct_state(equ3, NULL, 0, 0, 1,
               construct_state(whitespace, NULL, 0, 1, 2,
-                construct_state(number, NULL, START, 1, 1,
-                  construct_state(eol, apply_equ_num, STOP, 0, 0)),
+                construct_state(number, NULL, START, 1, 2,
+                  construct_state(eol, apply_equ_num, STOP, 0, 0),
+                  construct_state(whitespace, NULL, STOP, 1, 1,
+                    construct_state(eol, apply_equ_num, 0, 0))),
                 construct_state(ascii, NULL, START, 0, 1,
-                  construct_state(identifier, NULL, 0, 1, 1,
-                    construct_state(eol, apply_equ_ident, STOP, 0, 0)
+                  construct_state(identifier, NULL, 0, 1, 2,
+                    construct_state(eol, apply_equ_ident, STOP, 0, 0),
+                    construct_state(whitespace, NULL, STOP, 1, 1,
+                      construct_state(eol, apply_equ_ident, 0, 0, 0))
       )))))));
+
 
   // TODO(zforman) Let you have arbitrary cool $ + 3, $ + 16#FF, etc. stuff
   state *space_state 
@@ -218,12 +307,20 @@ state *dlx_parsing_state()
               construct_state(space4, NULL, 0, 0, 1,
                 construct_state(space5, NULL, 0, 0, 1,
                   construct_state(whitespace, NULL, 0, 1, 2,
-                    construct_state(number, NULL, START, 1, 1,
-                      construct_state(eol, apply_space_num, STOP, 0, 0)),
-                    construct_state(ascii, NULL, START, 0, 1,
-                      construct_state(identifier, NULL, 0, 1, 1,
-                        construct_state(eol, apply_space_ident, STOP, 0, 0)
-      )))))))));
+                    construct_state(number, NULL, START, 1, 2,
+                      construct_state(eol, apply_space_num, STOP, 0, 0),
+                      construct_state(whitespace, NULL, STOP, 1, 1,
+                        construct_state(eol, apply_space_num, 0, 0, 0))),
+                    construct_state(ascii, NULL, START, 0, 3,
+                      construct_state(identifier, NULL, 0, 1, 2,
+                        construct_state(eol, apply_space_ident, STOP, 0, 0),
+                        construct_state(whitespace, NULL, STOP, 1, 1,
+                          construct_state(eol, apply_space_ident, 0, 0, 0))),
+                      construct_state(eol, apply_space_ident, STOP, 0, 0),
+                      construct_state(whitespace, NULL, STOP, 1, 1,
+                        construct_state(eol, apply_space_ident, 0, 0, 0))
+    ))))))));
+
 
   // TODO(zforman) Allow for multiple vars in one word_state.
   state *word_state
@@ -231,48 +328,72 @@ state *dlx_parsing_state()
         construct_state(word1, NULL, 0, 0, 1,
           construct_state(word2, NULL, 0, 0, 1,
             construct_state(word3, NULL, 0, 0, 1,
-              construct_state(word4, NULL, 0, 0, 1,
+              construct_state(word4, NULL, 0, 0, 2,
                 construct_state(whitespace, NULL, 0, 1, 2,
                   construct_state(number, NULL, START, 1, 1,
                     construct_state(eol, apply_word_num, STOP, 0, 0)),
                   construct_state(ascii, NULL, START, 0, 1,
                     construct_state(identifier, NULL, 0, 1, 1,
-                      construct_state(eol, apply_word_ident, STOP, 0, 0)
-      ))))))));
+                      construct_state(eol, apply_word_ident, STOP, 0, 0)))),
+                construct_state(uns, NULL, 0, 0, 1,
+                  construct_state(whitespace, NULL, 0, 1, 2,
+                    construct_state(number, NULL, START, 1, 1,
+                      construct_state(eol, apply_wordu_num, STOP, 0, 0)),
+                    construct_state(ascii, NULL, START, 0, 1,
+                      construct_state(identifier, NULL, 0, 1, 1,
+                        construct_state(eol, apply_wordu_ident, STOP, 0, 0)))))
+      )))));
 
   state *half_state
     = construct_state(dot, NULL, 0, 0, 1,
         construct_state(half1, NULL, 0, 0, 1,
           construct_state(half2, NULL, 0, 0, 1,
             construct_state(half3, NULL, 0, 0, 1,
-              construct_state(half4, NULL, 0, 0, 1,
+              construct_state(half4, NULL, 0, 0, 2,
                 construct_state(whitespace, NULL, 0, 1, 2,
                   construct_state(number, NULL, START, 1, 1,
                     construct_state(eol, apply_half_num, STOP, 0, 0)),
                   construct_state(ascii, NULL, START, 0, 1,
                     construct_state(identifier, NULL, 0, 1, 1,
-                      construct_state(eol, apply_half_ident, STOP, 0, 0)
-      ))))))));
+                      construct_state(eol, apply_half_ident, STOP, 0, 0)))),
+                construct_state(uns, NULL, 0, 0, 1,
+                  construct_state(whitespace, NULL, 0, 1, 2,
+                    construct_state(number, NULL, START, 1, 1,
+                      construct_state(eol, apply_halfu_num, STOP, 0, 0)),
+                    construct_state(ascii, NULL, START, 0, 1,
+                      construct_state(identifier, NULL, 0, 1, 1,
+                        construct_state(eol, apply_halfu_ident, STOP, 0, 0)))))
+      )))));
 
   state *byte_state
     = construct_state(dot, NULL, 0, 0, 1,
         construct_state(byte1, NULL, 0, 0, 1,
           construct_state(byte2, NULL, 0, 0, 1,
             construct_state(byte3, NULL, 0, 0, 1,
-              construct_state(byte4, NULL, 0, 0, 1,
+              construct_state(byte4, NULL, 0, 0, 2,
                 construct_state(whitespace, NULL, 0, 1, 2,
                   construct_state(number, NULL, START, 1, 1,
                     construct_state(eol, apply_byte_num, STOP, 0, 0)),
                   construct_state(ascii, NULL, START, 0, 1,
                     construct_state(identifier, NULL, 0, 1, 1,
-                      construct_state(eol, apply_byte_ident, STOP, 0, 0)
-      ))))))));
-              
+                      construct_state(eol, apply_byte_ident, STOP, 0, 0)))),
+                construct_state(uns, NULL, 0, 0, 1,
+                  construct_state(whitespace, NULL, 0, 1, 2,
+                    construct_state(number, NULL, START, 1, 1,
+                      construct_state(eol, apply_byteu_num, STOP, 0, 0)),
+                    construct_state(ascii, NULL, START, 0, 1,
+                      construct_state(identifier, NULL, 0, 1, 1,
+                        construct_state(eol, apply_byteu_ident, STOP, 0, 0)))))
+      )))));
+
 
   state *post_label_state
     = construct_state(epsilon, NULL, 0, 0, 1, 
         space_state,
-        word_state
+        word_state,
+        half_state,
+        byte_state,
+        make_instruction_state()
       );
 
   state *optional_label_state 
